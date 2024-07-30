@@ -1,7 +1,7 @@
 #include <array>
 #include <iostream>
 int main() {
-	const int maxI {1000000};
+	const int maxI {10001};
 	bool isPrime {false};
 	std::array<int,maxI> primes;
 	int num = 2;
