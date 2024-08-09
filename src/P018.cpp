@@ -1,3 +1,8 @@
+// NOTE
+// This was a bad method
+// Please see the file names P018-dynamic-programming.cpp
+
+
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -26,7 +31,6 @@ void calculateMaxPath(std::vector<Node*>& graph, std::vector<int>& triangleNums,
 						graph[len]->total = total;
 					}
 					// End case
-					//std::cout << "Reached end case" << '\n';
 					return;
 				}
 				break;
@@ -77,7 +81,7 @@ int main() {
 	// Add final node to be answer value
 	graph[len] = new Node{};
 
-	// Perform a modified dijkstra algorithm on graph to find greatest path
+	// Perform a recursive algorithm on graph to find greatest path
 	// No distance matrix or linked list is required as it can be calculated mathematically
 	//
 	//       1               0
