@@ -71,6 +71,16 @@ int straightFlush(std::unordered_set<Card*>& cards) {
 	return 0;
 }
 
+int flush(std::unordered_set<Card*>& cards) {
+	char suite{(*cards.begin())->suite};
+	for (auto card : cards) {
+		if (card->suite != suite) {
+			return 0;
+		}
+	}
+	return 1;
+}
+
 int fourOfKind(std::unordered_set<Card*>& cards) {
 	std::vector<int> counts(15,0);
 	for (auto card : cards) {
@@ -110,24 +120,73 @@ int fullHouse(std::unordered_set<Card*>& cards) {
 			break;
 		}
 	}
+	bool isPairFound{0};
 	for (size_t i{0}; i < 15; i++) {
 		if (counts[i] == 2) {
 			res += i;
+			isPairFound = 1;
 			break;
 		}
 	}
-	if (res >= 16) {
+	if (res >= 16 && isPairFound) {
 		return res;
 	} else {
 		return 0;
 	}
 }
 
+int straight(std::unordered_set<Card*>& cards) {
+	std::vector<int> counts(15,0);
+	for (auto card : cards) {
+		counts[card->number]++;
+	}
+	int counter{0};
+	for (size_t i{0}; i < 15; i++) {
+		if (counts[i] == 1) {
+			counter++;
+		} else {
+			counter = 0;
+		}
+		if (counter == 5) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int pairs(std::unordered_set<Card*>& cards) {
+	std::vector<int> counts(15,0);
+	for (auto card : cards) {
+		counts[card->number]++;
+	}
+	int total{0};
+	for (size_t i{14}; i > 0; i--) {
+		if (counts[i] == 2) {
+			total = total*15+i;
+		}
+	}
+	return total;
+}
+
+int highestCard(std::unordered_set<Card*>& cards) {
+	std::vector<int> counts(15,0);
+	for (auto card : cards) {
+		counts[card->number]++;
+	}
+	int total{0};
+	for (size_t i{14}; i > 0; i--) {
+		if (counts[i] == 1) {
+			total = total*15+i;
+		}
+	}
+	return total;
+}
+
 int max(int num1, int num2) {
 	if (num1 > num2) {
-		return num1;
+		return 1;
 	} else if (num1 < num2) {
-		return num2;
+		return 2;
 	} else {
 		return 0;
 	}
@@ -156,10 +215,43 @@ int getWinner(std::unordered_set<Card*>& player1, std::unordered_set<Card*>& pla
 			return res;
 		}
 	}
-	return 0;
+	// check flush
+	{
+		int res{max(flush(player1), flush(player2))};
+		if (res != 0) {
+			return res;
+		}
+	}
+	// check straight
+	{
+		int res{max(straight(player1), straight(player2))};
+		if (res != 0) {
+			return res;
+		}
+	}
+	// check 3 of a kind
+	{
+		int res{max(threeOfKind(player1), threeOfKind(player2))};
+		if (res != 0) {
+			return res;
+		}
+	}
+	// check 2 pair and 1 pair
+	{
+		int res{max(pairs(player1), pairs(player2))};
+		if (res != 0) {
+			return res;
+		}
+	}
+	// check highest card
+	{
+		int res{max(highestCard(player1), highestCard(player2))};
+		return res;
+	}
 }
 
 int main() {
+	int winCount{0};
 	std::ifstream input{"P054_poker.txt"};
 	while (input) {
 		std::unordered_set<Card*> player1;
@@ -179,12 +271,20 @@ int main() {
 				player2.insert(card);
 			}
 		}
+		//printDeck(player1);
+		//printDeck(player2);
+		int res{getWinner(player1, player2)};
+		if (res == 1) {
+			winCount++;
+		}
+		//std::cout << res << '\n';
 
-		printDeck(player2);
 
 		deleteCards(player1);
 		deleteCards(player2);
 	}
+
+	std::cout << winCount << '\n';
 
 	return 0;
 }
